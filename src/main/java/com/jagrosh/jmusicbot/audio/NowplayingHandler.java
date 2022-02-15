@@ -1,4 +1,4 @@
-/*
+  /*
  * Copyright 2018 John Grosh <john.a.grosh@gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,11 +39,13 @@ public class NowplayingHandler
 {
     private final Bot bot;
     private final HashMap<Long,Pair<Long,Long>> lastNP; // guild -> channel,message
+    private final String previousGame;
     
     public NowplayingHandler(Bot bot)
     {
         this.bot = bot;
         this.lastNP = new HashMap<>();
+        this.previousGame = null;
     }
     
     public void init()
@@ -141,7 +143,10 @@ public class NowplayingHandler
             if(track!=null && bot.getJDA().getGuilds().stream().filter(g -> g.getSelfMember().getVoiceState().inVoiceChannel()).count()<=1)
                 bot.getJDA().getPresence().setActivity(Activity.listening(track.getInfo().title));
             else
-                bot.resetGame();
+                // Reverts game back to previous set
+                if(this.previousGame.isEmpty())
+                   bot.resetGame();
+                else bot.getJDA().getPresence().setActivity(Activity.playing(this.previousGame));
         }
         
         // update channel topic if applicable
